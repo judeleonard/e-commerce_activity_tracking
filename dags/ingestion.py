@@ -418,7 +418,7 @@ with DAG('d2b_assessment',
     data_quality_check_task = PythonOperator(
         task_id = 'data_quality_checks',
         python_callable=data_quality_checks,
-        op_kwargs={'tables': 'judendu4707_analytics.agg_public_holiday, judendu4707_analytics.agg_shipments'},
+        op_kwargs={'tables': 'judendu4707_analytics.agg_public_holiday, judendu4707_analytics.agg_shipments, judendu4707_analytics.best_performing_product'},
         
     )
 

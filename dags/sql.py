@@ -71,17 +71,17 @@ create_best_performing_product_table = ("""
     DROP TABLE IF EXISTS judendu4707_analytics.best_performing_product;
     CREATE TABLE judendu4707_analytics.best_performing_product(
     ingestion_date DATE NOT NULL DEFAULT CURRENT_DATE,
-    product_name VARCHAR(255)  NULL,
-    most_ordered_day DATE  NULL,
+    product_name VARCHAR(255) NULL,
+    most_ordered_day DATE NULL,
     is_public_holiday boolean NULL,
-    tt_review_point INT NULL,
+    tt_review_points INT NOT NULL,
     pct_one_star_review FLOAT NOT NULL,
     pct_two_star_review FLOAT NOT NULL,
     pct_three_star_review FLOAT NOT NULL,
     pct_four_star_review FLOAT NOT NULL,
     pct_five_star_review FLOAT NOT NULL,
-    pct_early_shipments FLOAT NULL,
-    pct_late_shipments FLOAT NULL,
+    pct_early_shipments FLOAT NOT NULL,
+    pct_late_shipments FLOAT NOT NULL,
     PRIMARY KEY(ingestion_date));
 
 """)
@@ -186,101 +186,121 @@ load_agg_order_public_holiday_table = ("""
 
 
 load_agg_shipment_table = ("""
-    INSERT INTO judendu4707_analytics.agg_shipments(tt_late_shipments, tt_undelivered_items)
+
 
     WITH dates_cte AS 
      (
-     SELECT order_id, shipment_date, delivery_date,
- 		(sd.shipment_date + 6) AS valid_date,
- 		('2022-09-05'::date + 15) AS deadline_date
-     FROM judendu4707_staging.shipment_del_staging AS sd
+     SELECT sd.order_id, sd.shipment_date, sd.delivery_date, ot.order_id, ot.order_date,
+ 		(ot.order_date + 6) AS order_deadline,
+ 		('2022-09-05'::date + 15) AS delivery_dl
+	FROM judendu4707_staging.shipment_del_staging AS sd
+	JOIN judendu4707_staging.orders_staging ot
+	ON ot.order_id=sd.order_id
      )
-
-SELECT 
-	SUM(CASE 
- 			WHEN ot.order_date <> d.shipment_date THEN 1
-		    WHEN ot.order_date <> d.valid_date THEN 1
-		    WHEN d.delivery_date <> d.shipment_date THEN 1
-			WHEN d.delivery_date <> d.valid_date THEN 1
-	   		ELSE 0
-	END) as "tt_late_shipments",
-	SUM(CASE 
- 			WHEN ot.order_date <> '2022-09-05' THEN 1
-			WHEN ot.order_date <> d.deadline_date THEN 1
-			WHEN d.delivery_date IS NULL AND d.shipment_date IS NULL
-			THEN 1
- 			ELSE 0
- 	END) as "tt_undelivered_items" 
-	
-FROM dates_cte d
-INNER JOIN judendu4707_staging.orders_staging ot USING (order_id);
-   
+	INSERT INTO judendu4707_analytics.agg_shipments(tt_late_shipments, tt_undelivered_items) 
+    SELECT 
+        SUM(CASE WHEN sh.shipment_date >= sh.order_deadline AND sh.delivery_date IS NULL THEN 1 ELSE 0 END) as "tt_late_shipments",
+		SUM(CASE WHEN sh.shipment_date > sh.delivery_dl 
+			AND (sh.delivery_date IS NULL AND sh.shipment_date IS NULL) THEN 1 ELSE 0 END) as "tt_undelivered_items" 
+	FROM dates_cte as sh;  
 """)
     
 
 load_best_performing_product = """
-    INSERT INTO judendu4707_analytics.best_performing_product(pct_one_star_review,
-                                                              pct_two_star_review,
-                                                              pct_three_star_review,
-                                                              pct_four_star_review,
-                                                              pct_five_star_review)
+    INSERT INTO judendu4707_analytics.best_performing_product(tt_review_points, pct_one_star_review, pct_two_star_review, 
+                                                               pct_three_star_review, pct_four_star_review, 
+                                                               pct_five_star_review, pct_early_shipments, pct_late_shipments)
 
+    WITH transform_cte AS 
+        (
+            SELECT dd.calendar_dt, sd.shipment_date, sd.delivery_date, sd.order_id, ot.order_id,
+				   dd.day_of_the_week_num as most_ordered_day, 
+				   (ot.order_date + 6) AS deadline_date,
+				   dd.working_day as is_public_holiday, dp.product_id, dp.product_name,
+				   rt.review, rt.product_id, ot.order_date, ot.product_id
+				FROM  judendu4707_staging.orders_staging as ot
+				JOIN if_common.dim_dates dd ON ot.order_date = dd.calendar_dt
+				JOIN judendu4707_staging.shipment_del_staging sd ON ot.order_id=sd.order_id
+				JOIN if_common.dim_products dp ON dp.product_id = ot.product_id
+				JOIN judendu4707_staging.reviews_staging rt ON rt.product_id = dp.product_id
+          )	  
+            
+    (SELECT 
+            
+            ROUND(
+            100.0 * (
+                SUM(CASE WHEN tc.review = 1 THEN 1 ELSE 0 END)::DECIMAL / COUNT(tc.review)
+                ), 2) pct_one_star_review,
+
+            ROUND(
+            100.0 * (
+                SUM(CASE WHEN tc.review = 2 THEN 1 ELSE 0 END)::DECIMAL / COUNT(tc.review)
+                ), 2) pct_two_star_review,
+
+            ROUND(
+            100.0 * (
+                SUM(CASE WHEN tc.review = 3 THEN 1 ELSE 0 END)::DECIMAL / COUNT(tc.review)
+                ), 2) pct_three_star_review,
+
+            ROUND(
+            100.0 * (
+                SUM(CASE WHEN tc.review = 4 THEN 1 ELSE 0 END)::DECIMAL / COUNT(tc.review)
+                ), 2) pct_four_star_review,
+
+            ROUND(
+            100.0 * (
+                SUM(CASE WHEN tc.review = 5 THEN 1 ELSE 0 END)::DECIMAL / COUNT(tc.review)
+                ), 2) pct_five_star_review,
+                
+            SUM(DISTINCT tc.review) as tt_review_points,
+            
+            ROUND(
+                100.0 * (
+                    SUM(CASE WHEN tc.shipment_date >= tc.deadline_date AND tc.delivery_date IS NULL THEN 1 ELSE 0 END)::DECIMAL / COUNT(tc.shipment_date)
+                    ), 2) pct_late_shipments,
+            ROUND(
+                100.0 * (
+                    SUM(CASE WHEN tc.shipment_date <= tc.deadline_date AND tc.delivery_date IS NOT NULL THEN 1 ELSE 0 END)::DECIMAL / COUNT(tc.shipment_date)
+                    ), 2) pct_early_shipments  
+    
+    FROM transform_cte as tc);
  
-   (SELECT 
-        ROUND(
-        100.0 * (
-            SUM(CASE WHEN review = 1 THEN 1 ELSE 0 END)::DECIMAL / COUNT(review)
-            ), 2) pct_one_star_review,
-        ROUND(
-        100.0 * (
-            SUM(CASE WHEN review = 2 THEN 1 ELSE 0 END)::DECIMAL / COUNT(review)
-            ), 2) pct_two_star_review,
-        ROUND(
-        100.0 * (
-            SUM(CASE WHEN review = 3 THEN 1 ELSE 0 END)::DECIMAL / COUNT(review)
-            ), 2) pct_three_star_review,
-        ROUND(
-        100.0 * (
-            SUM(CASE WHEN review = 4 THEN 1 ELSE 0 END)::DECIMAL / COUNT(review)
-            ), 2) pct_four_star_review,
-        ROUND(
-        100.0 * (
-            SUM(CASE WHEN review = 5 THEN 1 ELSE 0 END)::DECIMAL / COUNT(review)
-            ), 2) pct_five_star_review
-
-
-    FROM judendu4707_staging.reviews_staging);
-
 """
 
+## this part queries the most reviewed product based on product_name, most_ordered_day and is_public_holiday
+
+# WITH transform_cte AS 
+#         (
+#         SELECT dd.calendar_dt, 
+#             dd.day_of_the_week_num as most_ordered_day, 
+#             dd.working_day as is_public_holiday, dp.product_id, dp.product_name,
+#             rt.review, rt.product_id, ot.order_date, ot.product_id
+#             FROM  judendu4707_staging.orders_staging as ot
+#             JOIN if_common.dim_dates dd ON ot.order_date = dd.calendar_dt
+#             JOIN if_common.dim_products dp ON dp.product_id = ot.product_id
+#             JOIN judendu4707_staging.reviews_staging rt ON rt.product_id = dp.product_id
+#         )
+# INSERT INTO judendu4707_analytics.best_performing_product(product_name, most_ordered_day, is_public_holiday)
+# SELECT tc.most_ordered_day, tc.is_public_holiday, tc.product_name, tc.review
+# FROM transform_cte tc
+# ORDER BY review DESC
+# LIMIT 1;
 
 
-#------- This query returns the result of the following fields; product_name, is_public_holiday, most_ordered_day, -----#
 
-#     WITH transform_cte AS 
-#     (
-#         SELECT dd.calendar_dt, dd.day_of_the_week_num, dd.working_day, sd.shipment_date,
-# 			(sd.shipment_date + 6) AS valid_date, sd.delivery_date, sd.order_id
-# 		FROM if_common.dim_dates dd
-# 		LEFT JOIN judendu4707_staging.shipment_del_staging AS sd
-# 		ON sd.shipment_date=dd.calendar_dt
-		
-# 	)
 
- 
-#     SELECT
-#        dp.product_name, ot.quantity, ot.product_id, dp.product_id, ot.order_id,
-#         tc.day_of_the_week_num AS most_ordered_day,
-#         tc.working_day AS is_public_holiday
-#     FROM transform_cte tc
-#     INNER JOIN judendu4707_staging.orders_staging ot USING (order_id)
-#     INNER JOIN if_common.dim_products dp USING (product_id)
-#     ORDER BY ot.quantity DESC
-#     LIMIT 1;
 
-#    (SELECT review,COUNT(*) AS "tt_review_point"
-#     FROM judendu4707_staging.reviews_staging
-#    GROUP BY review)
+
+
+
+
+
+
+
+
+
+
+
 
 
 ####################   CONSTRAINTS ###########################
