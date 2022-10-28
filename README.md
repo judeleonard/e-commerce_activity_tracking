@@ -7,7 +7,7 @@
 - Real-time pipeline Demo
 
 ## Architecture Overview
-![]()
+![](https://github.com/judeleonard/Assessment-repo/blob/d2b/images/architecture.png)
 
 ## Technologies and Functions
 
@@ -63,8 +63,28 @@ This task copies the `reviews.csv` file from the local directory where it is dow
 This task copies the `shipment.csv` file from the local directory where it is downloaded for staging into the data warehouse staging schema
 
 - `loading_agg_order_public_holiday_task`
+This task uses SQL operator to transform the data copied to data warehouse staging schema and loads the resultant query into the `agg_order_public_holiday` table in the data warehouse analytics schema
 
+- `loading_agg_shipment_task`
+This task uses SQL operator to transform the data copied to data warehouse staging schema and loads the resultant query into the `agg_shipment` table in the data warehouse analytics schema
 
+- `loading_best_product_task `
+This task uses SQL operator to transform the data copied to data warehouse staging schema and loads the resultant query into the `best_product` table in the data warehouse analytics schema
+
+-  `data_quality_check_task`
+This is an utility task that ensures the data loaded to our analytics schema must pass all criteria in terms of data reliability. Since our insight tables lives in the warehouse analytics schema, then data quality check is run on each of the tables once data transformation completed
+
+- `clean_up_task`
+This task cleans the entire pipeline processes in preparation for the next run. Removes all the downloaded files from our local staging directory and also drops all the tables in our data warehouse staging schema since they are no longer useful once data transformation is completed. Although these staging tables are all set to be dropped upon next run.
+
+-  `exporting_agg_public_holiday_task`
+This task exports the `agg_public_holiday` table from our data warehouse analytics schema to an S3 bucket as a backup or archive file
+
+-   `exporting_agg_shipments_task`
+This task exports the `agg_shipment` table from our data warehouse analytics schema to an S3 bucket as a backup or archive file
+
+-   `exporting_best_performing_product_task`
+This task exports the `best_product` table from our data warehouse analytics schema to an S3 bucket as a backup or archive file
 
 
 
