@@ -5,6 +5,7 @@
 - Technologies and Functions
 - Pipeline Explanation Task by Task
 - Real-time pipeline Demo
+- Side Note
 
 ## Architecture Overview
 ![](https://github.com/judeleonard/Assessment-repo/blob/d2b/images/architecture.png)
@@ -87,4 +88,11 @@ This task exports the `agg_shipment` table from our data warehouse analytics sch
 This task exports the `best_product` table from our data warehouse analytics schema to an S3 bucket as a backup or archive file
 
 
+## Pipeline Demo
+![](https://github.com/judeleonard/Assessment-repo/blob/d2b/images/pipeline.png)
+
+[see demo in real-time here]()
+
+It took roughly about 1:42 for the pipeline to reach completion. This was heavily impacted by my poor network as at the time I was taking this record.
+With my strong internet connection it took  roughly about 42sec to reach completion
 
