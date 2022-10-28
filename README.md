@@ -91,8 +91,18 @@ This task exports the `best_product` table from our data warehouse analytics sch
 ## Pipeline Demo
 ![](https://github.com/judeleonard/Assessment-repo/blob/d2b/images/pipeline.png)
 
-[see demo in real-time here]()
+## [see demo in real-time here](https://vimeo.com/765006630/457467d7d2)
 
 It took roughly about 1:42 for the pipeline to reach completion. This was heavily impacted by my poor network as at the time I was taking this record.
-With my strong internet connection it took  roughly about 42sec to reach completion
+With my strong internet connection it took  roughly about 42sec for the pipeline to reach completion.
+
+### Side Note
+Other things I can stll improve on
+- Modify the some of the SQL queries to make it even more robust and efficient
+- Add more data quality checks to continously ensure we are getting the right data into our storage
+
+
+
+
+# Thank you!
 
