@@ -21,91 +21,91 @@
 
 ## Pipeline Explanation Task by Task
 
-`download_data_from_s3_task`
+#### `download_data_from_s3_task`
 
 This task triggers a bash command that downloads all the staging data files from s3 and saves them to a local directly for staging
 
-`order_file_sensor_task`
+#### `order_file_sensor_task`
 
 This task is triggered once the `order.csv` file is present in the local. Which means if the download is not completed the pipeline would not proceed. This will serve as an additional check since we wouldn't know when the files will arrive in the directory.
 
-`review_file_sensor_task'
+#### `review_file_sensor_task`
 
 This task is triggered once the `reviews.csv` file is present in the download directory
 
-`shipment_del_file_sensor_task`
+#### `shipment_del_file_sensor_task`
  
 This task is triggered once the `shipment_deliveries.csv` file is present in the download directory
 
-`creating_orders_staging_task`
+#### `creating_orders_staging_task`
 
 This task creates the `orders_staging` table with all the key constraints associated with it in the data warehouse staging schema
 
-`creating_reviews_staging_task`
+#### `creating_reviews_staging_task`
 
 This task creates the `reviews_staging` table with all the key constraints associated with it in the data warehouse staging schema
 
-`creating_shipment_staging_task`
+#### `creating_shipment_staging_task`
 
 This task creates the `shipment_staging` table with all the key constraints associated with it in the data warehouse staging schema
 
-`creating_shipment_staging_task`
+#### `creating_shipment_staging_task`
 
 This task creates the `shipment_staging` table with all the key constraints associated with it in the data warehouse staging schema
 
-`creating_agg_public_holiday_task`
+#### `creating_agg_public_holiday_task`
 
 This task creates the `agg_publicholiday` table with all the key constraints associated with it in the data warehouse analytics schema
 
-`creating_agg_shipment_task`
+#### `creating_agg_shipment_task`
 
 This task creates the `agg_shipment_delivery` table with all the key constraints associated with it in the data warehouse analytics schema
 
-`creating_best_performing_products_task`
+#### `creating_best_performing_products_task`
 
 This task creates the `best_performing_product` table with all the key constraints associated with it in the data warehouse analytics schema
 
-`loading_order_staging_task`
+#### `loading_order_staging_task`
 
 This task copies the `order.csv` file from the local directory where it is downloaded for staging into the data warehouse staging schema
 
-`loading_reviews_staging_task`
+#### `loading_reviews_staging_task`
 
 This task copies the `reviews.csv` file from the local directory where it is downloaded for staging into the data warehouse staging schema
 
-`loading_shipment_delivery_staging_task`
+#### `loading_shipment_delivery_staging_task`
 
 This task copies the `shipment.csv` file from the local directory where it is downloaded for staging into the data warehouse staging schema
 
-`loading_agg_order_public_holiday_task`
+#### `loading_agg_order_public_holiday_task`
 
 This task uses SQL operator to transform the data copied to data warehouse staging schema and loads the resultant query into the `agg_order_public_holiday` table in the data warehouse analytics schema
 
-`loading_agg_shipment_task`
+#### `loading_agg_shipment_task`
 
 This task uses SQL operator to transform the data copied to data warehouse staging schema and loads the resultant query into the `agg_shipment` table in the data warehouse analytics schema
 
-`loading_best_product_task`
+#### `loading_best_product_task`
 
 This task uses SQL operator to transform the data copied to data warehouse staging schema and loads the resultant query into the `best_product` table in the data warehouse analytics schema
 
-`data_quality_check_task`
+#### `data_quality_check_task`
 
 This is an utility task that ensures the data loaded to our analytics schema must pass all criteria in terms of data reliability. Since our insight tables lives in the warehouse analytics schema, then data quality check is run on each of the tables once data transformation completed
 
-`clean_up_task`
+#### `clean_up_task`
 
 This task cleans the entire pipeline processes in preparation for the next run. Removes all the downloaded files from our local staging directory and also drops all the tables in our data warehouse staging schema since they are no longer useful once data transformation is completed. Although these staging tables are all set to be dropped upon next run.
 
-`exporting_agg_public_holiday_task`
+#### `exporting_agg_public_holiday_task`
 
 This task exports the `agg_public_holiday` table from our data warehouse analytics schema to an S3 bucket as a backup or archive file
 
-`exporting_agg_shipments_task`
+#### `exporting_agg_shipments_task`
 
 This task exports the `agg_shipment` table from our data warehouse analytics schema to an S3 bucket as a backup or archive file
 
-`exporting_best_performing_product_task`
+#### `exporting_best_performing_product_task`
 
 This task exports the `best_product` table from our data warehouse analytics schema to an S3 bucket as a backup or archive file
 
