@@ -1,6 +1,7 @@
-# Assessment
+# Data Engineering Technical Assessment
 
 ## Content
+
 - Archecture Overview
 - Technologies and Functions
 - Pipeline Explanation Task by Task
@@ -116,7 +117,7 @@ This task exports the `best_product` table from our data warehouse analytics sch
 ## [See demo in real-time here](https://vimeo.com/765006630/457467d7d2)
 
 It took roughly about 1:42 for the pipeline to reach completion. This was heavily impacted by my poor network as at the time I was taking this record.
-With my strong internet connection it took  roughly about 42sec for the pipeline to reach completion.
+With my strong internet connection it took  roughly about 1:10 for the pipeline to reach completion.
 
 ### Side Note
 Other things I can stll improve on
