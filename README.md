@@ -15,7 +15,7 @@
 
 - `Postgres` Serves as the Data Warehouse
 - `Amazon S3` serves as the Data Lake
-- `Python` for data extractions and manipulation
+- `Python` for data extractions and loading
 - `SQL` data transformation
 - `Airflow` orchestration and for running Cron Jobs
 - `Docker` containerization
