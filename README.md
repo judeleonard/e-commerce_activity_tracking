@@ -126,7 +126,7 @@ This task exports the `best_product` table from our data warehouse analytics sch
 
 
 ## Pipeline Demo
-![](https://github.com/judeleonard/e-commerce_activity_tracking/blob/master/images/pipeline.png)
+![](https://github.com/judeleonard/e-commerce_activity_tracking/blob/master/images/e_commerce_pipeline.png)
 
 ## [See demo in real-time here](https://vimeo.com/765006630/457467d7d2)
 
