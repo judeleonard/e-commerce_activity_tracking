@@ -18,6 +18,9 @@ This project is aimed at leveraging data engineering to setup an ELT data pipeli
 
 `shipment_delivery` - containing fact table about shipment and their delivery dates
 
+# Data Modeling Overview
+![](https://github.com/judeleonard/e-commerce_activity_tracking/blob/master/images/ELT.png)
+
 
 ## Architecture Overview
 ![](https://github.com/judeleonard/e-commerce_activity_tracking/blob/master/images/architecture.png)
