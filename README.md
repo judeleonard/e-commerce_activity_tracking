@@ -19,7 +19,7 @@ This project is aimed at leveraging data engineering to setup an ELT data pipeli
 
 
 ## Architecture Overview
-![](https://github.com/judeleonard/Assessment-repo/blob/d2b/images/architecture.png)
+![](https://github.com/judeleonard/e-commerce_activity_tracking/blob/master/images/architecture.png)
 
 ## Technologies and Functions
 
@@ -122,7 +122,7 @@ This task exports the `best_product` table from our data warehouse analytics sch
 
 
 ## Pipeline Demo
-![](https://github.com/judeleonard/Assessment-repo/blob/d2b/images/pipeline.png)
+![](https://github.com/judeleonard/e-commerce_activity_tracking/blob/master/images/pipeline.png)
 
 ## [See demo in real-time here](https://vimeo.com/765006630/457467d7d2)
 
