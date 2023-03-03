@@ -1,6 +1,7 @@
 
 ## Content
-
+- Project Description
+- Data Modeling Overview
 - Archecture Overview
 - Technologies and Functions
 - Pipeline Explanation Task by Task
