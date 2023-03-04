@@ -35,8 +35,7 @@ def get_connection():
     USER = str(Variable.get('username'))
     PASSWORD = str(Variable.get('password'))
     HOST = str(Variable.get('host'))
-    #conn = psycopg2.connect("database={DATABASE} user={USER} host={HOST} password={PASSWORD}")
-    conn = psycopg2.connect("dbname=d2b_assessment user=judendu4707 host=d2b-internal-assessment-dwh.cxeuj0ektqdz.eu-central-1.rds.amazonaws.com password=ksWSvpuBKa")
+    conn = psycopg2.connect("dbname={DATABASE} user={USER} host={HOST} password={PASSWORD}")
     return conn
 
 
