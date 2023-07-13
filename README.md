@@ -27,7 +27,7 @@ This project is aimed at leveraging data engineering to setup an ELT data pipeli
 
 ## Technologies and Functions
 
-- `Postgres` Serves as the Data Warehouse
+- `Postgres` Serves as the Data Warehouse (Hosted on AWS)
 - `Amazon S3` Cloud storage as the Data Lake containing the fact tables
 - `Python` for data extractions and loading
 - `SQL` Data transformation
